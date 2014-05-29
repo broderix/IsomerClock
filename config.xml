@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://monkeycode.ru/tizen-wearable/IsomerClock" version="1.0.0" viewmodes="maximized">
+    <tizen:application id="BpGr9Z68V8.IsometricClock" package="BpGr9Z68V8" required_version="2.2"/>
+    <author href="https://github.com/broderix/IsomerClock" email="broderix@yandex.ru">Kirill Danilov</author>
+    <tizen:category name="com.samsung.wmanager.WATCH_CLOCK"/>
+    <content src="index.html"/>
+    <description>IsomerClock&#xD;
+Example of &quot;Clock Widget&quot; for Samsung Gear 2 developing with Tizen SDK for Wearable</description>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+    <icon src="icon.png"/>
+    <license href="https://github.com/broderix/IsomerClock/blob/master/LICENSE">MIT</license>
+    <name>IsomerClock</name>
+    <tizen:privilege name="http://tizen.org/privilege/power"/>
+    <tizen:setting background-support="disable" encryption="enable" hwkey-event="enable"/>
+</widget>
