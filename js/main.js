@@ -1,25 +1,69 @@
+/**
+The MIT License (MIT)
 
-var iso = {},
-	backgroundColor = 0,
+Copyright (c) 2014 Kirill Danilov <broderix@yandex.ru>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+var iso = {}, 
+	backgroundColor = 0, 
 	canvas = {},
-	onTimeIntervalListener = function(){},
-	onBackgroundIntervalListener = function(){},
-	timeInterval,
-	backgroundInterval;
-	
-var onVisibilityChangeListener = function() {
-	console.log(document["hidden"], document.visibilityState);
-	if (document.visibilityState === "visible") {
-//		tizen.power.request("SCREEN", "SCREEN_NORMAL");
-//		tizen.power.request("SCREEN", "CPU_AWAKE");
-		onTimeIntervalListener();
-		onBackgroundIntervalListener();
-		timeInterval = setInterval(onTimeIntervalListener, 1000);
-		backgroundInterval = setInterval(onBackgroundIntervalListener, 100);
+	onTimeIntervalListener = function() {}, 
+	onBackgroundIntervalListener = function() {}, 
+	onVisibilityChangeListener = function() {}, 
+	onScreenStateChangeListener = function() {}, 
+	timeInterval = 0, 
+	backgroundInterval = 0, 
+	number = {}, 
+	Point = {}, 
+	Path = {}, 
+	Shape = {}, 
+	Color = {},
+	intervalsRegistered = false;
+
+var clearIntervals = function() {
+	clearInterval(timeInterval);
+	clearInterval(backgroundInterval);
+};
+
+var startIntervals = function() {
+	intervalsRegistered = true;
+	onTimeIntervalListener();
+	onBackgroundIntervalListener();
+	timeInterval = setInterval(onTimeIntervalListener, 60 * 1000);
+	backgroundInterval = setInterval(onBackgroundIntervalListener, 50);
+};
+
+onVisibilityChangeListener = function() {
+	if (document.visibilityState === "visible" && !intervalsRegistered) {
+		startIntervals();
 	} else {
-//		tizen.power.release("SCREEN");
-		clearInterval(timeInterval);
-		clearInterval(backgroundInterval);
+		clearIntervals();
+	}
+}
+
+onScreenStateChangeListener = function(previousState, changedState) {
+	if (changedState === "SCREEN_OFF" && intervalsRegistered) {
+		clearIntervals();
+	} else if (changedState === "SCREEN_NORMAL") {
+		startIntervals();
 	}
 }
 
@@ -28,31 +72,23 @@ window.onload = function() {
 		if (e.keyName == "back")
 			tizen.application.getCurrentApplication().exit();
 	});
-	// http://jdan.github.io/isomer/gallery/
-
 	canvas = document.getElementById("canvas");
 	canvas.width = 320;
 	canvas.height = 320;
 
-	iso = new Isomer(canvas, {
-		scale : 15,
-	});
-	var Point = Isomer.Point;
-	var Path = Isomer.Path;
-	var Shape = Isomer.Shape;
-	var Color = Isomer.Color;
+	iso = new Isomer(canvas, { scale : 15 });
+	Point = Isomer.Point;
+	Path = Isomer.Path;
+	Shape = Isomer.Shape;
+	Color = Isomer.Color;
 
-
-//	var red = new Color(160, 60, 50);
-//	var blue = new Color(50, 60, 160);
-//	var gray = new Color(163, 163, 163);
-	
 	onTimeIntervalListener();
 	onBackgroundIntervalListener();
-	document.addEventListener("visibilitychange", onVisibilityChangeListener, false);
+	document.addEventListener("visibilitychange", onVisibilityChangeListener);
+	tizen.power.setScreenStateChangeListener(onScreenStateChangeListener);
 };
 
-var number = function(n, x, y, color) {
+number = function(n, x, y, color) {
 	switch (parseInt(n)) {
 	case 0:
 		iso.add(Shape.Prism(new Point(0 + x, 2 + y, 0), 1, 1, 5), color);
@@ -128,7 +164,7 @@ var number = function(n, x, y, color) {
 
 onBackgroundIntervalListener = function() {
 	backgroundColor = backgroundColor + 1;
-	canvas.style.backgroundColor = "hsl(" + color + ",100%,30%)";
+	canvas.style.backgroundColor = "hsl(" + backgroundColor + ", 100%, 20%)";
 	backgroundColor = (backgroundColor > 359) ? 0 : backgroundColor;
 };
 
@@ -142,14 +178,6 @@ onTimeIntervalListener = function() {
 	if (minutes.length === 1) {
 		minutes = "0" + minutes;
 	}
-	iso.canvas.clear();
-//	number(hours[0], -3, 4);
-//	number(hours[1], -1, 1);
-//	number(minutes[0], 2, -3);
-//	number(minutes[1], 4, -6);
-//	iso.add(Shape.Prism(new Point(0, 0, 3), 1, 1, 1));
-//	iso.add(Shape.Prism(new Point(0, 0, 1), 1, 1, 1));
-	
 	iso.canvas.clear();
 	number(hours[0], 5, 11);
 	number(hours[1], 5, 7);
