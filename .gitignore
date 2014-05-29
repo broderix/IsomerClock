@@ -1,7 +1,4 @@
 .build
-.project
 .rds_delta
 .sdk_delta.info
 .settings
-.tproject
-
